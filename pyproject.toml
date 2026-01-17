@@ -1,0 +1,28 @@
+[project]
+name = "invoice-app"
+version = "0.1.0"
+description = "Invoice Data Extraction System using OCR + LLM"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.111.0",
+    "python-dotenv>=1.0.0",
+    "paddleocr>=3.3.2",
+    "paddlepaddle>=3.3.0",
+    "easyocr>=1.7.0",
+    "celery>=5.3.0",
+    "redis>=5.0.0",
+    "python-multipart>=0.0.9",
+    "uvicorn>=0.30.0",
+    "pydantic-ai[openai,ollama]>=0.1.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "pdf2image>=1.17.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_mode = "auto"

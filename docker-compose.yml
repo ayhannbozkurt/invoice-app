@@ -1,0 +1,53 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api:
+    platform: linux/amd64
+    build: .
+    command: sh -c "uv sync --locked --no-dev && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DATA_DIR: /app/data
+      FLAGS_use_mkldnn: "0"
+      FLAGS_use_onednn: "0"
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+    volumes:
+      - .:/app
+      - data:/app/data
+      - venv:/app/.venv
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  worker:
+    platform: linux/amd64
+    build: .
+    command: sh -c "uv sync --locked --no-dev && celery -A app.tasks.celery.celery_app worker --loglevel=info"
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DATA_DIR: /app/data
+      FLAGS_use_mkldnn: "0"
+      FLAGS_use_onednn: "0"
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+    volumes:
+      - .:/app
+      - data:/app/data
+      - venv:/app/.venv
+    depends_on:
+      - redis
+
+volumes:
+  data:
+  venv:
